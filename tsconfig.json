@@ -1,0 +1,11 @@
+{
+	"include": ["src/**/*"],
+	"exclude": ["src/**.test.ts"], // don't build test files
+	"compilerOptions": {
+		"outDir": "dist",
+		"sourceMap": true,
+		"declaration": true, // export types for use in typescipt projects
+		"skipLibCheck": true, // reduces compile time by a ton
+		"esModuleInterop": true,
+	}
+}
