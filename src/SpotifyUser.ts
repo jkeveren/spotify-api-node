@@ -1,7 +1,7 @@
-import {Spotify} from "./Spotify"
+import {SpotifyClient} from "./SpotifyClient";
 
 export class SpotifyUser {
-	spotify: Spotify
+	client: SpotifyClient
 	accessToken: string
 	accessTokenExpiryTime: Date
 	refreshToken: string

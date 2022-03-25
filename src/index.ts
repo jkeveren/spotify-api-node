@@ -1,4 +1,4 @@
-import {Spotify} from "./Spotify";
+import {SpotifyClient} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
 
-export {Spotify, SpotifyUser};
+export {SpotifyClient, SpotifyUser};

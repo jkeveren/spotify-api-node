@@ -1,4 +1,4 @@
-import { Spotify } from ".";
+import {SpotifyClient} from "./SpotifyClient";
 
 describe("Spotify", () => {
 	// Create a Spotify
@@ -9,7 +9,7 @@ describe("Spotify", () => {
 		scopes: ["mock-scope-1", "mock-scope-2"],
 		showDialog: false,
 	}
-	const s = new Spotify(config);
+	const s = new SpotifyClient(config);
 
 	describe(".makeOAuthURL", () => {
 		const u: URL = s.makeOAuthURL();

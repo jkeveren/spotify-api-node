@@ -1,7 +1,7 @@
-import {SpotifyUser} from "./SpotifyUser"
+import {SpotifyUser} from "./SpotifyUser";
 
 // config for Spotify constructor
-interface SpotifyConfig {
+interface Config {
 	baseURL: string;
 	clientId: string;
 	redirectURL: string;
@@ -9,14 +9,14 @@ interface SpotifyConfig {
 	showDialog: boolean
 }
 
-export class Spotify {
-	config: SpotifyConfig
+export class SpotifyClient {
+	config: Config
 
 	// internal request function
 	// mutable for mocking
 	_makeRequest: Function
 
-	constructor(config: SpotifyConfig) {
+	constructor(config: Config) {
 		this.config = config;
 		// this._makeRequest = http | https
 	}
