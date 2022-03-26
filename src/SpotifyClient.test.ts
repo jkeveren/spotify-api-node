@@ -1,9 +1,11 @@
+import path from "path";
 import {SpotifyClient} from "./SpotifyClient";
 
 describe("Spotify", () => {
 	// Create a Spotify
 	const config = {
-		baseURL: "https://mock.base/URL",
+		authBaseURL: "https://mock.auth.base/URL",
+		APIBaseURL: "https://mock.API.base/URL",
 		clientId: "mock-client-id",
 		redirectURL: "https://mock.redirect/URL",
 		scopes: ["mock-scope-1", "mock-scope-2"],
@@ -12,11 +14,12 @@ describe("Spotify", () => {
 	const s = new SpotifyClient(config);
 
 	describe(".makeOAuthURL", () => {
-		const u: URL = s.makeOAuthURL();
+		const state = "mock-state"
+		const u: URL = s.makeOAuthURL(state);
 
 		// Base URL
 		it("returns correct base URL", () => {
-			expect(u.href.indexOf(config.baseURL)).toBe(0);
+			expect(u.href).toMatch(new RegExp("^" + config.authBaseURL + "/authorize"));
 		});
 
 		// Querystring Parameters
@@ -24,7 +27,7 @@ describe("Spotify", () => {
 			client_id: config.clientId,
 			response_type: "code",
 			redirect_uri: config.redirectURL,
-			state: "",
+			state: state,
 			scope: config.scopes.join(" "),
 			show_dialog: config.showDialog.toString(),
 		};

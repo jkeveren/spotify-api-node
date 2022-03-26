@@ -1,8 +1,9 @@
 import {SpotifyUser} from "./SpotifyUser";
 
 // config for Spotify constructor
-interface Config {
-	baseURL: string;
+interface SpotifyConfig {
+	authBaseURL: string;
+	APIBaseURL: string;
 	clientId: string;
 	redirectURL: string;
 	scopes: string[];
@@ -10,24 +11,24 @@ interface Config {
 }
 
 export class SpotifyClient {
-	config: Config
+	config: SpotifyConfig
 
 	// internal request function
 	// mutable for mocking
 	_makeRequest: Function
 
-	constructor(config: Config) {
+	constructor(config: SpotifyConfig) {
 		this.config = config;
 		// this._makeRequest = http | https
 	}
 
 	// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-user-authorization
-	makeOAuthURL(): URL {
-		const u = new URL(this.config.baseURL);
+	makeOAuthURL(state: string): URL {
+		const u = new URL(this.config.authBaseURL + "/authorize");
 		u.searchParams.set("client_id", this.config.clientId);
 		u.searchParams.set("response_type", "code");
 		u.searchParams.set("redirect_uri", this.config.redirectURL);
-		u.searchParams.set("state", ""); // not sure how to handle this yet
+		u.searchParams.set("state", state);
 		u.searchParams.set("scope", this.config.scopes.join(" "));
 		u.searchParams.set("show_dialog", this.config.showDialog.toString());
 		return u;
