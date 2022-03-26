@@ -1,7 +1,8 @@
 {
 	"scripts": {
 		"build": "npm exec tsc",
-		"test": "npm exec jest src",
+		"test": "npm exec jest",
+		"test/unit": "npm exec jest src",
 		"test/integration": "npm exec jest -t integration"
 	},
 	"devDependencies": {

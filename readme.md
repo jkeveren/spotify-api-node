@@ -28,10 +28,14 @@ CLIENT_SECRET=<your app's client secret>
 ```
 
 ## TODO
+- test getting non-string data like images
 - choose a sensible package name
 - Figure out how to handle state param in first oauth request
 - JSDocs
 - Make sure names are sensible
 - document everything
 - verify that spotify app needs to be in dev mode and that you need to add your account to the app's "users and access" section of the app's dashboard
-- verify config docs against used config
+- verify config docs against config that's in use
+- test export of smaller things like error types and response interface
+- document usage
+- document scripts

@@ -10,10 +10,15 @@ dotenv.config({
 });
 
 describe("integration", () => {
+	describe("exports", () => {
+		// TODO: test exports
+	});
+
 	const client = new SpotifyClient({
 		APIBaseURL: process.env.API_BASE_URL,
 		authBaseURL: process.env.AUTH_BASE_URL,
 		clientId: process.env.CLIENT_ID,
+		clientSecret: process.env.CLIENT_SECRET,
 		redirectURL: "http://localhost:" + process.env.REDIRECT_SERVER_PORT,
 		// Change these scopes if you don't feel comfortable reading that data about your account but make sure multiple scopes are present.
 		// Hanving multiple scopes tests scope joining.
@@ -21,20 +26,23 @@ describe("integration", () => {
 		showDialog: false
 	});
 
-	it("gets an authorization code from Spotify", async () => {
-		// allow time for the tester to complete OAuth dialog for first time
+	let code;
+
+	beforeAll(async () => {
+		// allow time for the human to complete OAuth dialog for first time
 		const timeoutSeconds = 10;
 		jest.setTimeout(timeoutSeconds * 1000);
 
+		// start http server and open link in browser
 		const url: string = await new Promise(resolve => {
 			// start redirect server to recieve Spotify redirect request
 			function listener(req: any, res: any) {
-				res.end("Redirect complete.\nCheck test output\nYou can now close this window/tab.");
+				res.end("Redirect complete.\nCheck test output.\nYou can now close this window/tab.");
 				redirectServer.close();
 				resolve(req.url);
 			}
 			const redirectServer = http.createServer({}, listener);
-			// log on server close because it takes a few seconds
+			// log when server closes because it takes a few seconds
 			redirectServer.on("close", () => {
 				process.stdout.write("Server closed (it's normal for this to take a few seconds)\n");
 			});
@@ -47,9 +55,18 @@ describe("integration", () => {
 			open(u.href);
 		});
 
-		// test code
-		const u = new URL(url, "http://localhost");
+		// test the code
+		const u = new URL(url, "http://host");
+		code = u.searchParams.get("code");
+	});
+
+	it("creates a URL that gets an authorization code from Spotify", async () => {
 		// code is typically 211 chars long but it's not documented
-		expect(u.searchParams.get("code")).toMatch(/^[\w\d-_]+$/);
+		expect(code).toMatch(/^[\w\d-_]+$/);
+	});
+
+	it("can make authenticated requests", async () => {
+		const user = await client.getUser(code);
+		// user.makeRequest()
 	});
 });

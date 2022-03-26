@@ -1,14 +1,11 @@
 import {SpotifyClient} from "./SpotifyClient";
 
 export class SpotifyUser {
-	client: SpotifyClient
-	accessToken: string
-	accessTokenExpiryTime: Date
-	refreshToken: string
-
-	constructor() {
-		// this._requester = http | https
-	}
+	client: SpotifyClient;
+	accessToken: string;
+	accessTokenExpiryDate: Date;
+	refreshToken: string;
+	scopes: string[];
 
 	// Refresh this users access token
 	async refreshAccessToken(): Promise<void> {
@@ -21,6 +18,6 @@ export class SpotifyUser {
 	async makeRequest() {
 		// get refresh token if neccessary
 		// make request
-		// this.spotify._makeRequest()
+		// this.client._makeRequest()
 	}
 }
