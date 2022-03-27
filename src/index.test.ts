@@ -1,5 +1,5 @@
 import * as index from ".";
-import {SpotifyClient, RequestError} from "./SpotifyClient";
+import {SpotifyClient, SpotifyRequestError} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
 
 describe("index", () => {
@@ -12,6 +12,6 @@ describe("index", () => {
 	});
 
 	it("exports errors", () => {
-		expect(index.RequestError).toBe(RequestError);
+		expect(index.SpotifyRequestError).toBe(SpotifyRequestError);
 	});
 });

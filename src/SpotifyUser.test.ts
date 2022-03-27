@@ -1,64 +1,56 @@
+import http from "http";
 import {SpotifyUser} from "./SpotifyUser";
-import {SpotifyClient, SpotifyResponse, RequestError} from "./SpotifyClient";
+import {SpotifyClient, SpotifyResponse, SpotifyRequestError} from "./SpotifyClient";
 import {testNumberRange} from "./testFunctions";
 
 describe("SpotifyUser", () => {
-	// create user with relevant properties
-	const user = new SpotifyUser();
-
 	// user's tokens
-	// Store tokens in seperate variables for immutablility and iteration
-	const mockTokens = {
-		refreshToken: "mock-refresh-token",
-		accessToken: "mock-access-token",
-	};
-	// assign mock tokens to user
-	for (const [key, value] of Object.entries(mockTokens)) {
-		user[key] = value;
-	}
+	const mockRefreshToken = "mock-refresh-token";
+	const mockAccessToken = "mock-access-token";
 
 	// user's client
 	const clientConfig = {
 		authBaseURL: "https://mock.auth.base/URL",
-		APIBaseURL: "",
+		APIBaseURL: "https://mock.API.base/URL",
 		clientId: "mock-client-id",
 		clientSecret: "mock-client-secret",
 		redirectURL: "",
 		scopes: [],
 		showDialog: false,
 	}
-	user.client = new SpotifyClient(clientConfig);
 
 	const mockExpiresIn = 100;
 	const mockGrantedScopes = ["mock-scope-1", "mock-scope-2"];
 
-	// internal requester
-	let requested = false;
-	let requestURL: URL;
-	let requestOptions: any;
-	let requestBody: string;
-	user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
-		requested = true;
-		requestURL = url;
-		requestOptions = options;
-		requestBody = body;
-
-		return {
-			statusCode: 200,
-			body: {
-				access_token: mockTokens.accessToken,
-				token_type: "Bearer",
-				scope: mockGrantedScopes.join(" "),
-				expires_in: mockExpiresIn,
-			}
-		}
-	};
-
 	describe(".refreshAccessToken", () => {
+		const user = new SpotifyUser;
+		user.client = new SpotifyClient(clientConfig);
+		user.refreshToken = mockRefreshToken;
+
+		// internal requester
+		let requested = false;
+		let requestURL: URL;
+		let requestOptions: any;
+		let requestBody: string;
+		user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
+			requested = true;
+			requestURL = url;
+			requestOptions = options;
+			requestBody = body;
+
+			return {
+				statusCode: 200,
+				body: {
+					access_token: mockAccessToken,
+					token_type: "Bearer",
+					scope: mockGrantedScopes.join(" "),
+					expires_in: mockExpiresIn,
+				},
+				incomingMessage: new http.IncomingMessage(null),
+			}
+		};
+
 		beforeAll(async () => {
-			// remove original token because new token will be the same
-			user.accessToken = "";
-			user.accessTokenExpiryDate = new Date();
 			await user.refreshAccessToken();
 		});
 
@@ -96,7 +88,7 @@ describe("SpotifyUser", () => {
 		});
 
 		it("updates access token", () => {
-			expect(user.accessToken).toBe(mockTokens.accessToken);
+			expect(user.accessToken).toBe(mockAccessToken);
 		});
 
 		it("updates access token expiry date", () => {
@@ -111,15 +103,94 @@ describe("SpotifyUser", () => {
 
 		it("throws on request failure", () => {
 			const originalRequester = user.client._internalMakeRequest;
-			user.client._internalMakeRequest = async (url: URL, options: object, body: string) => {
+			user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
 				return {
 					statusCode: 400,
 					body: {},
+					incomingMessage: new http.IncomingMessage(null),
 				};
 			};
 			expect(async () => {
 				await user.refreshAccessToken();
-			}).rejects.toThrow(RequestError);
+			}).rejects.toThrow(SpotifyRequestError);
+		});
+	});
+
+	describe(".makeRequest", () => {
+		const user = new SpotifyUser();
+		user.refreshToken = mockRefreshToken;
+		user.client = new SpotifyClient(clientConfig);
+
+		const mockPath = "/pa/th?search=params#fragment";
+		const mockURL = new URL(clientConfig.APIBaseURL + mockPath);
+		const mockOptions = {
+			method: "mock-method",
+			// headers are not included to ensure that headers object is added allong with auth header
+		};
+		const mockBody = "mock-body";
+		const mockResponse = {
+			statusCode: 200,
+			body: "mock-body",
+			incomingMessage: new http.IncomingMessage(null),
+		};
+
+		// internal requester
+		let requested = false;
+		let requestURL: URL;
+		let requestOptions: any;
+		let requestBody: string;
+		user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
+			requested = true;
+			requestURL = url;
+			requestOptions = options;
+			requestBody = body;
+
+			return mockResponse
+		};
+
+		let actualResponse: SpotifyResponse;
+		beforeAll(async () => {
+			actualResponse = await user.makeRequest(mockPath, mockOptions, mockBody);
+		});
+
+		describe("internal requester usage", () => {
+			it("uses the internal requester", () => {
+				expect(requested).toBe(true);
+			});
+
+			it("uses correct url", () => {
+				expect(requestURL.href).toBe(mockURL.href);
+			});
+
+			it("uses correct method", () => {
+				expect(requestOptions).toBe(mockOptions);
+			});
+
+			it("uses correct body", () => {
+				expect(requestBody).toBe(mockBody);
+			});
+
+			it("uses correct authorization header", () => {
+				expect(requestOptions.headers["authorization"]).toBe("Bearer " + user.accessToken);
+			});
+		});
+
+		it("returns correct response", () => {
+			expect(actualResponse).toBe(mockResponse)
+		});
+
+		it("throws on request failure", () => {
+			const originalRequester = user.client._internalMakeRequest;
+			user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
+				return {
+					statusCode: 400,
+					body: null,
+					incomingMessage: new http.IncomingMessage(null),
+				};
+			};
+			expect(async () => {
+				await user.makeRequest("/", null, null);
+			}).rejects.toThrow(SpotifyRequestError);
 		});
 	});
 });

@@ -11,7 +11,7 @@ const protocolMap = {
 // config for client constructor
 interface Config {
 	authBaseURL: string;
-	APIBaseURL: string;
+	APIBaseURL: string; // SpoitfyUser.makeRequest concatenates the endpoint argument with this
 	clientId: string;
 	clientSecret: string;
 	redirectURL: string;
@@ -24,7 +24,7 @@ export class SpotifyClient {
 
 	// internal request function
 	// mutable for mocking
-	_internalMakeRequest: (url: URL, options: object, requestBody: string) => Promise<SpotifyResponse>;
+	_internalMakeRequest: (url: URL, options: any, requestBody: string) => Promise<SpotifyResponse>;
 
 	constructor(config: Config) {
 		this.config = config;
@@ -69,7 +69,7 @@ export class SpotifyClient {
 		const response = await this._internalMakeRequest(url, options, body);
 
 		if (response.statusCode != 200) {
-			throw new RequestError("Failed to get tokens for user, status code: " + response.statusCode);
+			throw new SpotifyRequestError("Failed to get tokens for user", response);
 		}
 
 		const user = new SpotifyUser();
@@ -86,14 +86,23 @@ export class SpotifyClient {
 	}
 }
 
-export class RequestError extends Error {}
+export class SpotifyRequestError extends Error {
+	response: SpotifyResponse;
+
+	constructor(message: string, response: SpotifyResponse) {
+		message += ` (statusCode: ${response.statusCode})`
+		super(message);
+		this.response = response;
+	}
+}
 
 export interface SpotifyResponse {
 	statusCode: number;
 	body: any;
+	incomingMessage: http.IncomingMessage;
 }
 
-async function defaultInternalMakeRequest(url: URL, options: object, requestBody: string): Promise<SpotifyResponse> {
+async function defaultInternalMakeRequest(url: URL, options: any, requestBody: string): Promise<SpotifyResponse> {
 	const httpModule = protocolMap[url.protocol];
 
 	// make request
@@ -125,17 +134,13 @@ async function defaultInternalMakeRequest(url: URL, options: object, requestBody
 
 	const spotifyResponse: SpotifyResponse = {
 		statusCode: response.statusCode,
-		body: {},
+		body: responseBody,
+		incomingMessage: response,
 	};
 
 	// parse body
-	switch (response.headers["content-type"]) {
-		case "application/json":
-			spotifyResponse.body = JSON.parse(responseBody);
-			break;
-		default:
-			spotifyResponse.body = responseBody;
-			break;
+	if (response.headers["content-type"].indexOf("application/json") === 0) {
+		spotifyResponse.body = JSON.parse(spotifyResponse.body);
 	}
 
 	return spotifyResponse;

@@ -1,5 +1,5 @@
 import http from "http";
-import {SpotifyClient, SpotifyResponse, RequestError} from "./SpotifyClient";
+import {SpotifyClient, SpotifyResponse, SpotifyRequestError} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
 
 describe("SpotifyClient", () => {
@@ -57,7 +57,7 @@ describe("SpotifyClient", () => {
 		let requestBody: string;
 		// using different scopes in the reponse ensures that the client gets the scopes from the response and not from configuration.
 		const responseScopes = ["mock-scope-3", "mock-scope-4"];
-		client._internalMakeRequest = async (url: URL, options: object, body: string) => {
+		client._internalMakeRequest = async (url: URL, options: any, body: string) => {
 			requested = true;
 			requestURL = url;
 			requestOptions = options;
@@ -72,7 +72,8 @@ describe("SpotifyClient", () => {
 					scope: responseScopes.join(" "),
 					expires_in: mockExpiresIn,
 					refresh_token: mockTokens.refreshToken,
-				}
+				},
+				incomingMessage: new http.IncomingMessage(null),
 			};
 			return response
 		}
@@ -142,15 +143,16 @@ describe("SpotifyClient", () => {
 
 		it("throws if fails to get tokens", () => {
 			const client = new SpotifyClient(config);
-			client._internalMakeRequest = async (url: URL, options: object, body: string) => {
+			client._internalMakeRequest = async (url: URL, options: any, body: string) => {
 				return {
 					statusCode: 400,
-					body: ""
+					body: "",
+					incomingMessage: new http.IncomingMessage(null),
 				};
 			}
 			expect(async () => {
 				await client.getUser(mockAuthCode);
-			}).rejects.toThrow(RequestError);
+			}).rejects.toThrow(SpotifyRequestError);
 		});
 	});
 });

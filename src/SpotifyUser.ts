@@ -1,5 +1,5 @@
 import path from "path";
-import {SpotifyClient, RequestError} from "./SpotifyClient";
+import {SpotifyClient, SpotifyRequestError, SpotifyResponse} from "./SpotifyClient";
 
 export class SpotifyUser {
 	client: SpotifyClient;
@@ -31,7 +31,7 @@ export class SpotifyUser {
 		const response = await this.client._internalMakeRequest(url, options, body);
 
 		if (response.statusCode !== 200) {
-			throw new RequestError("Failed to refresh access token for user, status code: " + response.statusCode);
+			throw new SpotifyRequestError("Failed to refresh access token for user", response);
 		}
 
 		// assign token etc to user
@@ -43,10 +43,32 @@ export class SpotifyUser {
 	}
 
 	// make request to spotify api
-	// This method handles rate limits and access token refreshing.
-	async makeRequest() {
-		// get refresh token if neccessary
+	// This method handles rate limits (not implemented yet) and access token refreshing.
+	async makeRequest(endpoint: string, options: any, body: string): Promise<SpotifyResponse> {
+		// concat endpoint with base url
+		const url = new URL(this.client.config.APIBaseURL + endpoint);
+		// add auth header
+		if (!isObject(options)) {
+			options = {};
+		}
+		if (!isObject(options.headers)) {
+			options.headers = {};
+		}
+		options.headers.authorization = "Bearer " + this.accessToken;
 		// make request
-		// this.client._makeRequest()
+		const response = await this.client._internalMakeRequest(url, options, body);
+
+		if (response.statusCode !== 200) {
+			throw new SpotifyRequestError("Failed to make request", response);
+		}
+
+		// TODO: refresh access token if 401
+
+		return response;
 	}
+}
+
+// checks if value is an object and not null because JavaScript
+function isObject(value: any) {
+	return (value instanceof Object) && value != null
 }

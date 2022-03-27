@@ -1,8 +1,9 @@
-import {SpotifyClient, RequestError} from "./SpotifyClient";
+import {SpotifyClient, SpotifyRequestError, SpotifyResponse} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
 
 export {
 	SpotifyClient,
-	RequestError,
-	SpotifyUser
+	SpotifyRequestError,
+	SpotifyResponse,
+	SpotifyUser,
 };

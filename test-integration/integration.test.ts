@@ -2,7 +2,7 @@ import path from "path";
 import http from "http";
 import dotenv from "dotenv";
 import open from "open"
-import {SpotifyClient, SpotifyUser} from "../src";
+import {SpotifyClient, SpotifyUser, SpotifyResponse} from "../src";
 
 // load environment variables from .env in current directory
 dotenv.config({
@@ -86,6 +86,26 @@ describe("integration", () => {
 					testAccessTokenExpiryDate(newUser.accessTokenExpiryDate, 5);
 				});
 			});
+
+			describe(".makeRequest", () => {
+				let response: SpotifyResponse;
+				beforeAll(async () => {
+					response = await user.makeRequest("/me", {}, "");
+				});
+
+				it("can get the users profile", async () => {
+					expect(response.statusCode).toBe(200);
+				});
+
+				it("parses JSON responses", () => {
+					expect(response.body.id).toMatch(/[\w]+/);
+				});
+
+				it("returns response that contains the http.IncomingMessage", () => {
+					expect(response.incomingMessage).toBeInstanceOf(http.IncomingMessage);
+					expect(response.incomingMessage.statusCode).toBe(response.statusCode);
+				});
+			})
 		});
 	});
 });
@@ -105,7 +125,8 @@ async function spotifyAuthorization(spotifyURL: URL): Promise<string> {
 		}
 		const redirectServer = http.createServer({}, listener);
 		redirectServer.on("error", reject);
-		// log when server closes because it takes a few seconds
+		// log when server closes because it takes a few seconds.
+		// This no longer works but it also seems to be much faster at closing so I'll leave it here for now.
 		redirectServer.on("close", () => {
 			process.stdout.write("Server closed (it's normal for this to take a few seconds)\n");
 		});
