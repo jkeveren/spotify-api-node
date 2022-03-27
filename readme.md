@@ -1,10 +1,12 @@
 # Package Name
 
 ## Testing
+Both unit and integration (requires conjfiguration) tests can be run using `npm test`.
 ### Unit
-Unit tests can be run using `npm test`.
+Unit tests can be run using `npm run test/unit`.
 ### Integration
 Integration tests communicate with Spotify's API so requires some configuration.
+Once configured, integration tests can be run using `npm run test/integration`.
 #### Configuration
 1. Create a Spotify app in the [developer dashboard](https://developer.spotify.com/dashboard/).
 	- Add recirect URL `http://localhost:<port>` where `<port>` is the same as `REDIRECT_SERVER_PORT` in the .env file that you will create in the next step.
@@ -19,7 +21,8 @@ Integration tests communicate with Spotify's API so requires some configuration.
 REDIRECT_SERVER_PORT=8000
 
 # The base URL for all API requests
-# documented in the [API reference](https://developer.spotify.com/documentation/web-api/reference/#/)
+# documented in the API reference:
+# https://developer.spotify.com/documentation/web-api/reference/#/
 BASE_URL=https://api.spotify.com/v1
 
 # Client credentials
