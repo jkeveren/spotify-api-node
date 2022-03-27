@@ -8,8 +8,8 @@ const protocolMap = {
 	"https:": https,
 };
 
-// config for Spotify constructor
-interface SpotifyConfig {
+// config for client constructor
+interface Config {
 	authBaseURL: string;
 	APIBaseURL: string;
 	clientId: string;
@@ -20,13 +20,13 @@ interface SpotifyConfig {
 }
 
 export class SpotifyClient {
-	config: SpotifyConfig;
+	config: Config;
 
 	// internal request function
 	// mutable for mocking
 	_internalMakeRequest: (url: URL, options: object, requestBody: string) => Promise<SpotifyResponse>;
 
-	constructor(config: SpotifyConfig) {
+	constructor(config: Config) {
 		this.config = config;
 
 		// set up default requester
@@ -34,7 +34,7 @@ export class SpotifyClient {
 	}
 
 	// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-user-authorization
-	makeOAuthURL(state: string): URL {
+	getAuthorizationURL(state: string): URL {
 		const u = new URL(this.config.authBaseURL + "/authorize");
 		u.searchParams.set("client_id", this.config.clientId);
 		u.searchParams.set("response_type", "code");
@@ -45,7 +45,7 @@ export class SpotifyClient {
 		return u;
 	}
 
-	// Creates a user and gets tokens
+	// Creates a user with tokens
 	// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-access-token
 	async getUser(code: string): Promise<SpotifyUser> {
 		// get tokens
@@ -55,8 +55,8 @@ export class SpotifyClient {
 		const options = {
 			method: "POST",
 			headers: {
-				"Authorization": "Basic " + btoa(this.config.clientId + ":" + this.config.clientSecret),
-				"Content-Type": "application/x-www-form-urlencoded",
+				authorization: "Basic " + btoa(this.config.clientId + ":" + this.config.clientSecret),
+				"content-type": "application/x-www-form-urlencoded",
 			}
 		};
 
@@ -76,7 +76,7 @@ export class SpotifyClient {
 		user.client = this;
 		user.accessToken = response.body.access_token;
 		user.refreshToken = response.body.refresh_token;
-		user.scopes = response.body.scope.split(" ");
+		user.grantedScopes = response.body.scope.split(" ");
 
 		const d = new Date();
 		d.setSeconds(d.getSeconds() + response.body.expires_in);

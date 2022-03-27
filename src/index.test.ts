@@ -1,13 +1,17 @@
-import * as imports from ".";
-import {SpotifyClient} from "./SpotifyClient";
+import * as index from ".";
+import {SpotifyClient, RequestError} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
 
 describe("index", () => {
 	it("exports client", () => {
-		expect(imports.SpotifyClient).toBe(SpotifyClient);
+		expect(index.SpotifyClient).toBe(SpotifyClient);
 	});
 
 	it("exports user", () => {
-		expect(imports.SpotifyUser).toBe(SpotifyUser);
+		expect(index.SpotifyUser).toBe(SpotifyUser);
+	});
+
+	it("exports errors", () => {
+		expect(index.RequestError).toBe(RequestError);
 	});
 });

@@ -1,4 +1,8 @@
-import {SpotifyClient} from "./SpotifyClient";
+import {SpotifyClient, RequestError} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
 
-export {SpotifyClient, SpotifyUser};
+export {
+	SpotifyClient,
+	RequestError,
+	SpotifyUser
+};

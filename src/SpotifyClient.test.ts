@@ -15,9 +15,9 @@ describe("SpotifyClient", () => {
 	}
 	const client = new SpotifyClient(config);
 
-	describe(".makeOAuthURL", () => {
+	describe(".getAuthorizationURL", () => {
 		const state = "mock-state"
-		const u: URL = client.makeOAuthURL(state);
+		const u: URL = client.getAuthorizationURL(state);
 
 		// Base URL
 		it("returns correct base URL", () => {
@@ -48,23 +48,29 @@ describe("SpotifyClient", () => {
 			refreshToken: "mock-refresh-token"
 		}
 		const mockAuthCode = "mock-authorization-code";
+		const mockExpiresIn = 100;
 
+		// internal requester
+		let requested = false;
 		let requestURL: URL;
 		let requestOptions: any;
 		let requestBody: string;
-
+		// using different scopes in the reponse ensures that the client gets the scopes from the response and not from configuration.
+		const responseScopes = ["mock-scope-3", "mock-scope-4"];
 		client._internalMakeRequest = async (url: URL, options: object, body: string) => {
+			requested = true;
 			requestURL = url;
 			requestOptions = options;
 			requestBody = body;
+
 
 			const response = {
 				statusCode: 200,
 				body: {
 					access_token: mockTokens.accessToken,
 					token_type: "Bearer",
-					scope: config.scopes.join(" "),
-					expires_in: 100,
+					scope: responseScopes.join(" "),
+					expires_in: mockExpiresIn,
 					refresh_token: mockTokens.refreshToken,
 				}
 			};
@@ -76,11 +82,27 @@ describe("SpotifyClient", () => {
 		});
 
 		describe("internal requester usage", () => {
-			it("requests the correct base URL and path", () => {
-				expect(requestURL.href).toMatch(new RegExp("^" + config.authBaseURL + "/api/token"));
+			it("uses the internal requester", () => {
+				expect(requested).toBe(true);
 			});
 
-			it("requests with correct body", () => {
+			it("uses correct url", () => {
+				expect(requestURL.href).toBe(config.authBaseURL + "/api/token");
+			});
+
+			it("uses correct method", () => {
+				expect(requestOptions.method.toLowerCase()).toBe("post");
+			});
+
+			it("uses correct Authorization header", () => {
+				expect(requestOptions.headers["authorization"]).toBe("Basic " + btoa(config.clientId + ":" + config.clientSecret));
+			});
+
+			it("uses correct content-type header", () => {
+				expect(requestOptions.headers["content-type"]).toBe("application/x-www-form-urlencoded");
+			});
+
+			it("uses correct body", () => {
 				const want = new URLSearchParams({
 					grant_type: "authorization_code",
 					code: mockAuthCode,
@@ -90,18 +112,6 @@ describe("SpotifyClient", () => {
 				want.sort();
 				got.sort();
 				expect(got.toString()).toEqual(want.toString());
-			});
-
-			it("uses the correct method", () => {
-				expect(requestOptions.method.toLowerCase()).toBe("post");
-			});
-
-			it("sends correct Authorization header", () => {
-				expect(requestOptions.headers["Authorization"]).toBe("Basic " + btoa(config.clientId + ":" + config.clientSecret));
-			});
-
-			it("sends correct content-type header", () => {
-				expect(requestOptions.headers["Content-Type"]).toBe("application/x-www-form-urlencoded");
 			});
 		});
 
@@ -116,15 +126,18 @@ describe("SpotifyClient", () => {
 		}
 
 		it("returns a user with correct token expiry", () => {
-			const d = new Date();
-			d.setSeconds(d.getSeconds() + 100);
-			// This a not great way of testing that the dates are very close.
-			// I can't think of a better way of doing this right now but this does work.
-			expect(user.accessTokenExpiryDate.getTime() / 100).toBeCloseTo(d.getTime() / 100, 0);
+			// TODO: refactor this to use ./testFunctions>testTimeRange
+			const allowedDeviation = 1; // seconds
+			const minDate = new Date();
+			minDate.setSeconds(minDate.getSeconds() + mockExpiresIn - allowedDeviation);
+			const maxDate = new Date();
+			maxDate.setSeconds(maxDate.getSeconds() + mockExpiresIn + allowedDeviation);
+			expect(user.accessTokenExpiryDate.getTime()).toBeGreaterThan(minDate.getTime());
+			expect(user.accessTokenExpiryDate.getTime()).toBeLessThan(maxDate.getTime());
 		});
 
 		it("returns a user with correct scopes", () => {
-			expect(user.scopes).toEqual(config.scopes);
+			expect(user.grantedScopes).toEqual(responseScopes);
 		});
 
 		it("throws if fails to get tokens", () => {
