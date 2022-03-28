@@ -1,4 +1,4 @@
-# @jkeveren/spotify-api
+# @jkeveren-spotify-api
 `npm install @jkeveren/spotify-api`
 
 ## Development

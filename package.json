@@ -1,6 +1,6 @@
 {
-	"name": "@jkeveren/spotify-api",
-	"version": "0.1.0",
+	"name": "jkeveren-spotify-api",
+	"version": "0.1.1",
 	"description": "Promise based Spotify API wrapper that automatically refreshes access tokens",
 	"scripts": {
 		"build": "npm exec tsc",
