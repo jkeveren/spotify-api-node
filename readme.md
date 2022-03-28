@@ -1,6 +1,7 @@
-# Package Name
+# @jkeveren/spotify-api
+`npm install @jkeveren/spotify-api`
 
-## Testing
+## Development
 Both unit and integration (requires configuration) tests can be run using `npm test`.
 ### Unit
 Unit tests can be run using `npm run test/unit`.
