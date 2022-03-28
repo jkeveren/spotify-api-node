@@ -9,15 +9,16 @@ describe("SpotifyClient", () => {
 		APIBaseURL: "https://mock.API.base/URL",
 		clientId: "mock-client-id",
 		clientSecret: "mock-client-secret",
-		redirectURL: "https://mock.redirect/URL",
-		scopes: ["mock-scope-1", "mock-scope-2"],
-		showDialog: false,
 	}
 	const client = new SpotifyClient(config);
 
+	const mockRedirectURL = "https://mock.redirect/URL";
+	const mockScopes = ["mock-scope-1", "mock-scope-2"];
+	const mockShowDialog = false;
+	const mockState = "mock-state"
+
 	describe(".getAuthorizationURL", () => {
-		const state = "mock-state"
-		const u: URL = client.getAuthorizationURL(state);
+		const u: URL = client.getAuthorizationURL(mockRedirectURL, mockScopes, mockState, mockShowDialog);
 
 		// Base URL
 		it("returns correct base URL", () => {
@@ -28,10 +29,10 @@ describe("SpotifyClient", () => {
 		const params = {
 			client_id: config.clientId,
 			response_type: "code",
-			redirect_uri: config.redirectURL,
-			state: state,
-			scope: config.scopes.join(" "),
-			show_dialog: config.showDialog.toString(),
+			redirect_uri: mockRedirectURL,
+			state: mockState,
+			scope: mockScopes.join(" "),
+			show_dialog: mockShowDialog.toString(),
 		};
 		for (const [key, value] of Object.entries(params)) {
 			it("returns correct search parameter " + key, () => {
@@ -79,7 +80,7 @@ describe("SpotifyClient", () => {
 		}
 
 		beforeAll(async () => {
-			user = await client.getUser(mockAuthCode);
+			user = await client.getUser(mockAuthCode, mockRedirectURL);
 		});
 
 		describe("internal requester usage", () => {
@@ -107,7 +108,7 @@ describe("SpotifyClient", () => {
 				const want = new URLSearchParams({
 					grant_type: "authorization_code",
 					code: mockAuthCode,
-					redirect_uri: config.redirectURL
+					redirect_uri: mockRedirectURL
 				});
 				const got = new URLSearchParams(requestBody);
 				want.sort();
@@ -146,7 +147,7 @@ describe("SpotifyClient", () => {
 				};
 			}
 			expect(async () => {
-				await client.getUser(mockAuthCode);
+				await client.getUser(mockAuthCode, mockRedirectURL);
 			}).rejects.toThrow(SpotifyRequestError);
 		});
 	});

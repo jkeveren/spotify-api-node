@@ -21,21 +21,21 @@ describe("integration", () => {
 		authBaseURL: process.env.AUTH_BASE_URL,
 		clientId: process.env.CLIENT_ID,
 		clientSecret: process.env.CLIENT_SECRET,
-		redirectURL: "http://localhost:" + process.env.REDIRECT_SERVER_PORT,
-		// Change these scopes if you don't feel comfortable reading that data about your account but make sure multiple scopes are present.
-		// Having multiple scopes tests scope joining.
-		// "user-follow-read" and "user-library-read" should be granted without requesting additional scopes.
-		scopes: ["user-follow-read", "user-library-read"],
-		showDialog: false
 	});
+
+	// Change these scopes if you don't feel comfortable reading that data about your account but make sure multiple scopes are present.
+	// Having multiple scopes tests scope joining.
+	// "user-follow-read" and "user-library-read" should be granted without requesting additional scopes.
+	const scopes = ["user-follow-read", "user-library-read"];
+	const redirectURL = "http://localhost:" + process.env.REDIRECT_SERVER_PORT;
 
 	// Execute full auth flow before any test executes because it must be executed in order.
 	let authCode: string;
 	let user: SpotifyUser;
 	beforeAll(async () => {
-		const authURL = client.getAuthorizationURL("");
+		const authURL = client.getAuthorizationURL(redirectURL, scopes, "", false);
 		authCode = await spotifyAuthorization(authURL);
-		user = await client.getUser(authCode);
+		user = await client.getUser(authCode, redirectURL);
 	});
 
 	describe("SpotifyClient", () => {

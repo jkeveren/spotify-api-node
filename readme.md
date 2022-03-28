@@ -47,3 +47,4 @@ CLIENT_SECRET=<your app's client secret>
 - verify that spotify app needs to be in dev mode and that you need to add your account to the app's "users and access" section of the app's dashboard
 - handle rate limits. (per user request queue?)
 - add user constructor
+- add integration test for state

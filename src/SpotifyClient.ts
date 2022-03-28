@@ -14,9 +14,6 @@ interface SpotifyClientConfig {
 	APIBaseURL: string; // SpoitfyUser.makeRequest concatenates the endpoint argument with this
 	clientId: string;
 	clientSecret: string;
-	redirectURL: string;
-	scopes: string[];
-	showDialog: boolean;
 }
 
 export class SpotifyClient {
@@ -34,20 +31,20 @@ export class SpotifyClient {
 	}
 
 	// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-user-authorization
-	getAuthorizationURL(state: string): URL {
+	getAuthorizationURL(redirectURL: string, scopes: string[], state: string, showDialog: boolean): URL {
 		const u = new URL(this.config.authBaseURL + "/authorize");
 		u.searchParams.set("client_id", this.config.clientId);
 		u.searchParams.set("response_type", "code");
-		u.searchParams.set("redirect_uri", this.config.redirectURL);
+		u.searchParams.set("redirect_uri", redirectURL);
 		u.searchParams.set("state", state);
-		u.searchParams.set("scope", this.config.scopes.join(" "));
-		u.searchParams.set("show_dialog", this.config.showDialog.toString());
+		u.searchParams.set("scope", scopes.join(" "));
+		u.searchParams.set("show_dialog", showDialog.toString());
 		return u;
 	}
 
 	// Creates a user with tokens
 	// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-access-token
-	async getUser(code: string): Promise<SpotifyUser> {
+	async getUser(code: string, redirectURL: string): Promise<SpotifyUser> {
 		// get tokens
 		const url = new URL(this.config.authBaseURL);
 		url.pathname = path.resolve(url.pathname, "api/token");
@@ -63,7 +60,7 @@ export class SpotifyClient {
 		const body = new URLSearchParams({
 			grant_type: "authorization_code",
 			code: code,
-			redirect_uri: this.config.redirectURL,
+			redirect_uri: redirectURL,
 		}).toString();
 
 		const response = await this._internalMakeRequest(url, options, body);
