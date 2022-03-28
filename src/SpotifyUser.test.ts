@@ -1,7 +1,6 @@
 import http from "http";
 import {SpotifyUser} from "./SpotifyUser";
 import {SpotifyClient, SpotifyResponse, SpotifyRequestError} from "./SpotifyClient";
-import {testNumberRange} from "./testFunctions";
 
 describe("SpotifyUser", () => {
 	// user's tokens
@@ -96,7 +95,7 @@ describe("SpotifyUser", () => {
 		it("updates access token expiry date", () => {
 			const expectedTime = Date.now() + mockExpiresIn * 1000 // miliseconds
 			const allowedDeviation = 100; // millieconds
-			testNumberRange(expect, user.accessTokenExpiryDate.getTime(), expectedTime, allowedDeviation);
+			global.testNumberRange(user.accessTokenExpiryDate.getTime(), expectedTime, allowedDeviation);
 		});
 
 		it("updates granted scopes", () => {

@@ -1,6 +1,6 @@
 {
 	"name": "jkeveren-spotify-api",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "Promise based Spotify API wrapper that automatically refreshes access tokens",
 	"scripts": {
 		"test": "npm exec jest",
@@ -17,6 +17,11 @@
 		"open": "^8.4.0",
 		"ts-jest": "^27.1.4",
 		"typescript": "^4.6.3"
+	},
+	"jest": {
+		"preset": "ts-jest",
+		"testEnvironment": "node",
+		"setupFiles": ["./testHelpers.ts"]
 	},
 	"repository": {
 		"type": "git",
