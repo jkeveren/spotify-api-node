@@ -1,6 +1,11 @@
 # jkeveren-spotify-api
 `npm install jkeveren-spotify-api`
 
+- Promise based
+- 0 Dependencies
+- Automatically refreshes tokens
+- Coming soon: Handles rate limit
+
 ## Development
 Both unit and integration (requires configuration) tests can be run using `npm test`.
 ### Unit

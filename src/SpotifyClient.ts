@@ -9,7 +9,7 @@ const protocolMap = {
 };
 
 // config for client constructor
-interface Config {
+interface SpotifyClientConfig {
 	authBaseURL: string;
 	APIBaseURL: string; // SpoitfyUser.makeRequest concatenates the endpoint argument with this
 	clientId: string;
@@ -20,13 +20,13 @@ interface Config {
 }
 
 export class SpotifyClient {
-	config: Config;
+	config: SpotifyClientConfig;
 
 	// internal request function
 	// mutable for mocking
 	_internalMakeRequest: (url: URL, options: any, requestBody: string) => Promise<SpotifyResponse>;
 
-	constructor(config: Config) {
+	constructor(config: SpotifyClientConfig) {
 		this.config = config;
 
 		// set up default requester
