@@ -1,5 +1,5 @@
-# @jkeveren-spotify-api
-`npm install @jkeveren/spotify-api`
+# jkeveren-spotify-api
+`npm install jkeveren-spotify-api`
 
 ## Development
 Both unit and integration (requires configuration) tests can be run using `npm test`.
