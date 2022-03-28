@@ -1,6 +1,7 @@
 import http from "http";
 import {SpotifyClient, SpotifyResponse, SpotifyRequestError} from "./SpotifyClient";
 import {SpotifyUser} from "./SpotifyUser";
+import {testNumberRange} from "./testFunctions";
 
 describe("SpotifyClient", () => {
 	// Create a Spotify
@@ -127,14 +128,9 @@ describe("SpotifyClient", () => {
 		}
 
 		it("returns a user with correct token expiry", () => {
-			// TODO: refactor this to use ./testFunctions>testTimeRange
-			const allowedDeviation = 1; // seconds
-			const minDate = new Date();
-			minDate.setSeconds(minDate.getSeconds() + mockExpiresIn - allowedDeviation);
-			const maxDate = new Date();
-			maxDate.setSeconds(maxDate.getSeconds() + mockExpiresIn + allowedDeviation);
-			expect(user.accessTokenExpiryDate.getTime()).toBeGreaterThan(minDate.getTime());
-			expect(user.accessTokenExpiryDate.getTime()).toBeLessThan(maxDate.getTime());
+			const expectedTime = Date.now() + mockExpiresIn * 1000 // miliseconds
+			const allowedDeviation = 100; // millieconds
+			testNumberRange(expect, user.accessTokenExpiryDate.getTime(), expectedTime, allowedDeviation);
 		});
 
 		it("returns a user with correct scopes", () => {

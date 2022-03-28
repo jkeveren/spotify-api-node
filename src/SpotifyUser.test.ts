@@ -8,10 +8,12 @@ describe("SpotifyUser", () => {
 	const mockRefreshToken = "mock-refresh-token";
 	const mockAccessToken = "mock-access-token";
 
+	const baseURLPath = "/URL";
+
 	// user's client
 	const clientConfig = {
-		authBaseURL: "https://mock.auth.base/URL",
-		APIBaseURL: "https://mock.API.base/URL",
+		authBaseURL: "https://mock.auth.base" + baseURLPath,
+		APIBaseURL: "https://mock.API.base" + baseURLPath,
 		clientId: "mock-client-id",
 		clientSecret: "mock-client-secret",
 		redirectURL: "",
@@ -180,6 +182,8 @@ describe("SpotifyUser", () => {
 		});
 
 		it("throws on request failure", () => {
+			const user = new SpotifyUser();
+			user.client = new SpotifyClient(clientConfig);
 			const originalRequester = user.client._internalMakeRequest;
 			user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
 				return {
@@ -192,5 +196,79 @@ describe("SpotifyUser", () => {
 				await user.makeRequest("/", null, null);
 			}).rejects.toThrow(SpotifyRequestError);
 		});
+
+		describe("automatic token refreshing on code 401", () => {
+			let refreshed = false;
+			let retried = false;
+			let requestOptions: any
+			let internalResponse: SpotifyResponse;
+			let externalResponse: SpotifyResponse;
+
+			beforeAll(async () => {const user = new SpotifyUser();
+				user.client = new SpotifyClient(clientConfig);
+
+				// This is used to check that makeRequest calls _internalMakeRequest and
+				// that it calls refreshAccessToken which in turn calls _internalMakeRequest
+				let i = 0;
+				user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
+					requestOptions = options;
+
+					let statusCode: number;
+					let responseBody = {};
+
+					switch (i++) {
+						case 0:
+							statusCode = 401;
+							break;
+						case 1:
+							if (url.pathname === baseURLPath + "/api/token") {
+								refreshed = true;
+							}
+							statusCode = 200;
+							responseBody = {
+								access_token: mockAccessToken,
+								expires_in: 0,
+								scope: "",
+							}
+							break;
+						case 2:
+							retried = true;
+							statusCode = 200;
+							break;
+					}
+
+					internalResponse = {
+						statusCode: statusCode,
+						body: responseBody,
+						incomingMessage: new http.IncomingMessage(null),
+					};
+
+					return internalResponse;
+				};
+
+				externalResponse = await user.makeRequest("/", null, null);
+			});
+
+			it("refreshes the access token", () => {
+				expect(refreshed).toBe(true);
+			});
+
+			it("retries the original request", () => {
+				expect(retried).toBe(true);
+			});
+
+			it("retries with correct auth header", () => {
+				expect(requestOptions.headers.authorization).toBe("Bearer " + mockAccessToken);
+			});
+
+			it("returns result of retry, not initial error response", () => {
+				expect(externalResponse).toBe(internalResponse);
+			});
+		});
+
+		// TODO:
+		// it("refreshes access token if expired based on accessTokenExpiryDate", () => {
+		// 	expect("implement me").toBe(true);
+		// });
 	});
 });

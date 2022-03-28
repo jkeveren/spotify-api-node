@@ -55,14 +55,28 @@ export class SpotifyUser {
 			options.headers = {};
 		}
 		options.headers.authorization = "Bearer " + this.accessToken;
+
 		// make request
-		const response = await this.client._internalMakeRequest(url, options, body);
+		let response = await this.client._internalMakeRequest(url, options, body);
 
-		if (response.statusCode !== 200) {
-			throw new SpotifyRequestError("Failed to make request", response);
+		// for loop enables retry of request once token is refreshed
+		for (let i = 0; i < 2; i++) {
+			switch (response.statusCode) {
+				case 200:
+					break;
+				case 401:
+					// if first 401, refresh access token and retry
+					if (i === 0) {
+						await this.refreshAccessToken();
+						options.headers.authorization = "Bearer " + this.accessToken;
+						response = await this.client._internalMakeRequest(url, options, body);
+						break;
+					}
+					// otherwise fall through to error
+				default:
+					throw new SpotifyRequestError("Failed to make request", response);
+			}
 		}
-
-		// TODO: refresh access token if 401
 
 		return response;
 	}

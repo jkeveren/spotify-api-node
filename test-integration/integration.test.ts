@@ -67,14 +67,11 @@ describe("integration", () => {
 
 		describe("SpotifyUser", () => {
 			describe(".refreshAccessToken", () => {
+				// create a new authed user so access token can be overridden without disturbing other async tests.
 				const newUser = new SpotifyUser();
 				beforeAll(async () => {
-					// copy authed user so access token can be overridden without disturbing other async tests.
-					Object.assign(newUser, {
-						client: user.client,
-						refreshToken: user.refreshToken
-					});
-
+					newUser.client = user.client;
+					newUser.refreshToken = user.refreshToken;
 					await newUser.refreshAccessToken();
 				});
 
@@ -104,6 +101,17 @@ describe("integration", () => {
 				it("returns response that contains the http.IncomingMessage", () => {
 					expect(response.incomingMessage).toBeInstanceOf(http.IncomingMessage);
 					expect(response.incomingMessage.statusCode).toBe(response.statusCode);
+				});
+
+				it("refreshes token and retries request when receiving status code 401", async () => {
+					const newUser = new SpotifyUser();
+					// create a new authed user so access token can be overridden without disturbing other async tests.
+					newUser.client = user.client;
+					newUser.refreshToken = user.refreshToken;
+					// Do not copy access token. This makes Spotify return 401.
+
+					const response = await newUser.makeRequest("/me", {}, "");
+					expect(response.statusCode).toBe(200);
 				});
 			})
 		});
