@@ -3,7 +3,7 @@ import {SpotifyUser} from "./SpotifyUser";
 
 export {
 	SpotifyClient,
-	SpotifyRequestError,
-	SpotifyResponse,
 	SpotifyUser,
+	SpotifyResponse,
+	SpotifyRequestError,
 };
