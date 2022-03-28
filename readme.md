@@ -1,6 +1,7 @@
 # jkeveren-spotify-api
 `npm install jkeveren-spotify-api`
 
+- TypeScript (Still works with regular JS)
 - Promise based
 - 0 Dependencies
 - Automatically refreshes tokens
