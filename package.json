@@ -1,10 +1,14 @@
 {
+	"name": "@jkeveren/spotify-api",
+	"version": "0.1.0",
+	"description": "Promise based Spotify API wrapper that automatically refreshes access tokens",
 	"scripts": {
 		"build": "npm exec tsc",
 		"test": "npm exec jest",
 		"test/unit": "npm exec jest src",
 		"test/integration": "npm exec jest -t integration"
 	},
+	"main": "dist/index.js",
 	"devDependencies": {
 		"@types/jest": "^27.4.1",
 		"dotenv": "^16.0.0",
@@ -12,5 +16,23 @@
 		"open": "^8.4.0",
 		"ts-jest": "^27.1.4",
 		"typescript": "^4.6.3"
-	}
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jkeveren/spotify-api-node.git"
+	},
+	"keywords": [
+		"Spotify",
+		"API",
+		"OAuth",
+		"wrap",
+		"wrapper"
+	],
+	"author": "James Keveren",
+	"license": "ISC",
+	"types": "./dist/index.d.ts",
+	"bugs": {
+		"url": "https://github.com/jkeveren/spotify-api-node/issues"
+	},
+	"homepage": "https://github.com/jkeveren/spotify-api-node#readme"
 }
