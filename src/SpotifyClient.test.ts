@@ -97,7 +97,7 @@ describe("SpotifyClient", () => {
 			});
 
 			it("uses correct Authorization header", () => {
-				expect(requestOptions.headers["authorization"]).toBe("Basic " + btoa(config.clientId + ":" + config.clientSecret));
+				expect(requestOptions.headers["authorization"]).toBe("Basic " + Buffer.from(config.clientId + ":" + config.clientSecret).toString("base64"));
 			});
 
 			it("uses correct content-type header", () => {

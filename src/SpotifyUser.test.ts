@@ -69,7 +69,7 @@ describe("SpotifyUser", () => {
 			});
 
 			it("uses correct authorization header", () => {
-				expect(requestOptions.headers["authorization"]).toBe("Basic " + btoa(clientConfig.clientId + ":" + clientConfig.clientSecret));
+				expect(requestOptions.headers["authorization"]).toBe("Basic " + Buffer.from(clientConfig.clientId + ":" + clientConfig.clientSecret).toString("base64"));
 			});
 
 			it("uses correct content-type header", () => {

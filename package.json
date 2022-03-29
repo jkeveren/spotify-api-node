@@ -3,11 +3,14 @@
 	"version": "0.2.0",
 	"description": "Promise based Spotify API wrapper that automatically refreshes access tokens",
 	"scripts": {
-		"test": "npm exec jest",
-		"test/unit": "npm exec jest src",
-		"test/integration": "npm exec jest -t integration",
-		"build": "npm exec tsc",
+		"test": "npx jest",
+		"test/unit": "npx jest src",
+		"test/integration": "npx jest -t integration",
+		"build": "npx tsc",
 		"prepare": "npm run build"
+	},
+	"engines": {
+		"nodejs": ">=14.19.0"
 	},
 	"main": "dist/index.js",
 	"devDependencies": {

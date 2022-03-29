@@ -18,7 +18,7 @@ export class SpotifyUser {
 		const options = {
 			method: "POST",
 			headers: {
-				authorization: "Basic " + btoa(this.client.config.clientId + ":" + this.client.config.clientSecret),
+				authorization: "Basic " + Buffer.from(this.client.config.clientId + ":" + this.client.config.clientSecret).toString("base64"),
 				"content-type": "application/x-www-form-urlencoded",
 			},
 		};
