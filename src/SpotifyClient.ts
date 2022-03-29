@@ -66,7 +66,7 @@ export class SpotifyClient {
 		const response = await this._internalMakeRequest(url, options, body);
 
 		if (response.statusCode != 200) {
-			throw new SpotifyRequestError("Failed to get tokens for user", response);
+			throw new SpotifyRequestError("Failed to get tokens for user", url.href, response);
 		}
 
 		const user = new SpotifyUser();
@@ -84,11 +84,13 @@ export class SpotifyClient {
 }
 
 export class SpotifyRequestError extends Error {
+	requestURL: string;
 	response: SpotifyResponse;
 
-	constructor(message: string, response: SpotifyResponse) {
-		message += ` (statusCode: ${response.statusCode})`
+	constructor(message: string, requestURL: string, response: SpotifyResponse) {
+		message += ` (statusCode: ${response.statusCode})`;
 		super(message);
+		this.requestURL = requestURL;
 		this.response = response;
 	}
 }

@@ -49,3 +49,4 @@ CLIENT_SECRET=<your app's client secret>
 - handle rate limits. (per user request queue?)
 - add user constructor
 - add integration test for state
+- add tests for SpotifyRequestError properties

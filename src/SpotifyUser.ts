@@ -31,7 +31,7 @@ export class SpotifyUser {
 		const response = await this.client._internalMakeRequest(url, options, body);
 
 		if (response.statusCode !== 200) {
-			throw new SpotifyRequestError("Failed to refresh access token for user", response);
+			throw new SpotifyRequestError("Failed to refresh access token for user", url.href, response);
 		}
 
 		// assign token etc to user
@@ -74,7 +74,7 @@ export class SpotifyUser {
 					}
 					// otherwise fall through to error
 				default:
-					throw new SpotifyRequestError("Failed to make request", response);
+					throw new SpotifyRequestError("Failed to make request", url.href, response);
 			}
 		}
 
