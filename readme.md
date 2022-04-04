@@ -1,6 +1,5 @@
 # jkeveren-spotify-api
 `npm install jkeveren-spotify-api`
-
 - TypeScript (Still works with regular JS)
 - Promise based
 - 0 Dependencies
@@ -9,9 +8,9 @@
 
 ## Development
 Both unit and integration (requires configuration) tests can be run using `npm test`.
-### Unit
+### Unit tests
 Unit tests can be run using `npm run test/unit`.
-### Integration
+### Integration tests
 Integration tests communicate with Spotify's API so requires some configuration.
 Once configured, integration tests can be run using `npm run test/integration`.
 #### Configuration
@@ -22,25 +21,28 @@ Once configured, integration tests can be run using `npm run test/integration`.
 1. Create a `.env` file inside the `test-integration` directory. Copy and modify following variables:
 ```
 # Port for the redirect server to listen on
-# When the user provides authorization, Spotify will redirect to a server hosted
-# for the integration testing. This should be the same as the port specified in
-# the redirect URL of your Spotify app.
+# The integration suite starts a temporary server for Spotify to redirect to.
+# This is the port that it listens on
 REDIRECT_SERVER_PORT=8000
 
-# The base URL for all API requests
-# documented in the API reference:
-# https://developer.spotify.com/documentation/web-api/reference/#/
-BASE_URL=https://api.spotify.com/v1
+# Base URLs for auth and API.
+# Documneted in Spotify's API docs:
+# Auth: https://developer.spotify.com/documentation/general/guides/authorization/
+# API: https://developer.spotify.com/documentation/web-api/reference/#/
+# Typical values are as follows:
+AUTH_BASE_URL=https://accounts.spotify.com
+API_BASE_URL=https://api.spotify.com/v1
 
-# Client credentials
-CLIENT_ID=<your app's client id>
-CLIENT_SECRET=<your app's client secret>
+# Client credentioals
+# Copy these from you're spotify app in the Spotify developer dashboard:
+# https://developer.spotify.com/dashboard
+CLIENT_ID=999b871166be415590457fc76f5898b4
+CLIENT_SECRET=c2df8bfbbd8044b2b87899fe451615f6
 ```
 
 ## TODO
 - Make sure names are sensible
 - document everything
-- verify config docs against config that's in use
 - document usage
 - document npm scripts
 - JSDoc everything else
