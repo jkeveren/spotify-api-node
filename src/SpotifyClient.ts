@@ -138,7 +138,8 @@ async function defaultInternalMakeRequest(url: URL, options: any, requestBody: s
 	};
 
 	// parse body
-	if (response.headers["content-type"].indexOf("application/json") === 0) {
+	const contentType = response.headers["content-type"];
+	if (contentType !== undefined && response.headers["content-type"].indexOf("application/json") === 0) {
 		spotifyResponse.body = JSON.parse(spotifyResponse.body);
 	}
 

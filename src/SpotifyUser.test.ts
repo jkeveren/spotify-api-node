@@ -103,7 +103,6 @@ describe("SpotifyUser", () => {
 		});
 
 		it("throws on request failure", () => {
-			const originalRequester = user.client._internalMakeRequest;
 			user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
 				return {
 					statusCode: 400,
@@ -180,10 +179,49 @@ describe("SpotifyUser", () => {
 			expect(actualResponse).toBe(mockResponse)
 		});
 
+		describe("status code errors", () => {
+			// Only test useful ranges. For example, status code 199 does not matter.
+			const ranges: [number, number, boolean][] = [
+				[100, 103, false],
+				[200, 226, false],
+				[300, 308, true],
+				[400, 415, true],
+				[500, 511, true]
+			];
+			for (const [start, end, shouldThrow] of ranges) {
+				for (let statusCode = start; statusCode <= end; statusCode++) {
+					it("should " + (shouldThrow ? "" : "not") + " throw on status code " + statusCode, async () => {
+						// create user and client with internal requester that will respond with the appropriate status code.
+						const user = new SpotifyUser();
+						user.client = new SpotifyClient(clientConfig);
+						user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
+							return {
+								statusCode: statusCode,
+								body: null,
+								incomingMessage: new http.IncomingMessage(null),
+							};
+						};
+						let error = null;
+						try {
+							await user.makeRequest("/", null, null);
+						} catch (e) {
+							error = e;
+						}
+						if (shouldThrow) {
+							expect(error).toBeInstanceOf(SpotifyRequestError);
+							expect(error.response.statusCode).toBe(statusCode);
+							expect(error.message).toMatch(new RegExp(statusCode.toString()));
+						} else {
+							expect(error).toBe(null);
+						}
+					});
+				}
+			}
+		});
+
 		it("throws on request failure", () => {
 			const user = new SpotifyUser();
 			user.client = new SpotifyClient(clientConfig);
-			const originalRequester = user.client._internalMakeRequest;
 			user.client._internalMakeRequest = async (url: URL, options: any, body: string) => {
 				return {
 					statusCode: 400,

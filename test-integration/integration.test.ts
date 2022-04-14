@@ -118,6 +118,7 @@ describe("integration", () => {
 	});
 });
 
+// Get's Spotify authorization from the developer
 async function spotifyAuthorization(spotifyURL: URL): Promise<string> {
 	// allow time for the human to complete OAuth dialog for first time
 	const timeoutSeconds = 10;
@@ -128,6 +129,8 @@ async function spotifyAuthorization(spotifyURL: URL): Promise<string> {
 		// start redirect server to recieve Spotify redirect request
 		function listener(req: any, res: any) {
 			res.end("Redirect complete.\nCheck test output.\nYou can now close this window/tab.");
+			// Close the server.
+			// This taking too long can cause jest to print the "A worker process has failed to exit gracefully".
 			redirectServer.close();
 			resolve(new URL(req.url, "http://host"));
 		}
