@@ -15,7 +15,7 @@ const tokenRegex = codeRegex;
 
 const tokenKeys = ["accessToken", "refreshToken"];
 
-describe("integration", () => {
+describe("end to end", () => {
 	const client = new SpotifyClient({
 		APIBaseURL: process.env.API_BASE_URL,
 		authBaseURL: process.env.AUTH_BASE_URL,

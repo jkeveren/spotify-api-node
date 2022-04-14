@@ -57,3 +57,4 @@ CLIENT_SECRET=c2df8bfbbd8044b2b87899fe451615f6
 - add integration test for state
 - add tests for SpotifyRequestError properties
 - handle getUser with no scopes
+- maker spotify user more constructable

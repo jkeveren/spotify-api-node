@@ -5,7 +5,7 @@
 	"scripts": {
 		"test": "npx jest",
 		"test/unit": "npx jest src",
-		"test/integration": "npx jest -t integration",
+		"test/integration": "npx jest end-to-end-tests",
 		"build": "npx tsc",
 		"prepare": "npm run build"
 	},
