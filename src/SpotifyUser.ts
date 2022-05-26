@@ -39,7 +39,9 @@ export class SpotifyUser {
 		const d = new Date();
 		d.setSeconds(d.getSeconds() + response.body.expires_in);
 		this.accessTokenExpiryDate = d;
-		this.grantedScopes = response.body.scope.split(" ");
+		if (response.body.scope) {
+			this.grantedScopes = response.body.scope.split(" ");
+		}
 	}
 
 	// make request to spotify api
